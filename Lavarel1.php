@@ -100,5 +100,48 @@
 			);
 		}
 		
+//9. 有关数据库的Validater的实现
+	public function validateCmsItemBelongsToStore($data)
+    {
+        Validator::extend('cmsitem_belongs_to_store',
+            function($attribute, $value, $parameters)
+            {
+                $store_id = $parameters[0];
+                $cmsitem_id = $parameters[1];
+                $cmsitem = CmsItem::find($cmsitem_id);
+                return !is_null($cmsitem) && filter_var( $cmsitem->store_id == $store_id, FILTER_VALIDATE_BOOLEAN);
+            }
+        );
+
+        $validatorArray = array(
+            'store_id' => 'cmsitem_belongs_to_store:'.$data['store_id'].','.$data['id']
+        );
+        $validator = Validator::make($data, $validatorArray );
+
+        if($validator->fails())
+        {
+            $this->errors = $validator->messages();
+            return false;
+        }
+        return true;
+    }
+
+    public function validate($data)
+    {
+        // make a new validator object
+        $validator = Validator::make($data, CmsItem::rules);
+
+        // check for failure
+        if ($validator->fails())
+        {
+            // set errors and return false
+            $this->errors = $validator->messages();
+            return false;
+        }
+
+        return $this->validateCmsItemBelongsToStore($data);
+    }
+	
+		
     
 ?>
