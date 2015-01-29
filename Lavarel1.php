@@ -141,6 +141,37 @@
 
         return $this->validateCmsItemBelongsToStore($data);
     }
+	//10. 注册用户后返回这样的数据。
+	"response": {
+        "access_token": "JvJBynEJRAc9HNQu5Mn5HyZBd41qVKmgCJO29O9n",
+        "token_type": "bearer",
+        "expires": 1421044151,
+        "expires_in": 604800,
+        "refresh_token": "1KJZ5DxNwJPIbYY4ksdj8VlSwoVcQd0ubh1inrlU"
+    }
+	
+	//添加用户
+	
+	$user = new User();
+            $user->telephone = $telephone;
+            $user->email = $telephone;
+            $user->password = Hash::make($password);
+            $user->save();
+
+            $store = \PomeMartProducts::addStore(array("store_name" => $telephone,'phone'=>$telephone));
+            $user->addRole($store->id, 1);
+			
+			
+	 $response = AuthorizationServer::issueAccessToken(
+                array(
+                    'grant_type'=> 'password',
+                    'client_id' => 'pomeAdmin',
+                    'client_secret'=> 'pomeAdmin',
+                    'username' => $telephone,
+                    'password' => $password,
+                    'scope' => 'admin'
+                )
+            );
 	
 		
     
